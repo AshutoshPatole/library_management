@@ -29,7 +29,7 @@ class BarCodeResultService extends ChangeNotifier {
     print(res);
     try {
       final Response response = await Dio().get(
-        'https://odd-walrus-49.loca.lt/fetch?accNo=$res',
+        'https://thin-ladybug-9.loca.lt/fetch?accNo=$res',
       );
       if (response.statusCode == 200) {
         _fetchBook = response.data;

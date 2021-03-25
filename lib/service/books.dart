@@ -11,7 +11,7 @@ class Books extends ChangeNotifier {
   Future book() async {
     try {
       final Response response =
-          await Dio().get('https://odd-walrus-49.loca.lt/');
+          await Dio().get('https://thin-ladybug-9.loca.lt/');
       if (response.statusCode == 200) {
         _books = response.data;
         print(_books);
@@ -22,13 +22,25 @@ class Books extends ChangeNotifier {
     }
   }
 
-  Future bookupdate(String id, String available) async {
+  Future bookupdate(String account, title, author, edition, pubYear, callNo,
+      publisher, materialStatus, materialType) async {
     try {
-      final Response response = await Dio().patch(
-          'https://odd-walrus-49.loca.lt/update-books?id=$id',
-          data: jsonEncode({"materialStatus": available}));
+      final Response response = await Dio()
+          .post('https://thin-ladybug-9.loca.lt/update-books', data: {
+        "author": author,
+        "title": title,
+        "edition": int.parse(edition),
+        "pubYear": int.parse(pubYear),
+        "publisher": publisher,
+        "callNo": callNo,
+        "materialStatus": materialStatus,
+        "materialType": materialType,
+        "accNo": account,
+      });
       if (response.statusCode == 200) {
         print(response.data);
+      } else {
+        print(response.statusCode);
       }
     } on SocketException {
       print("no conection");
