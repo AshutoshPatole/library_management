@@ -17,22 +17,6 @@ class _LoginState extends State<Login> {
   TextEditingController _password = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    print(id);
-    Future.delayed(Duration(seconds: 2), () async {
-      SharedPreferences _preference = await SharedPreferences.getInstance();
-      id = _preference.getString("id");
-      if (id?.length == 0) {
-        return;
-      } else {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => BarCodeHome()));
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final emailField = TextField(
       controller: _username,
@@ -80,32 +64,32 @@ class _LoginState extends State<Login> {
     );
 
     return Scaffold(
-      body: Center(
-        child: id == null
-            ? CircularProgressIndicator()
-            : Container(
-                color: Colors.white,
-                child: Padding(
-                  padding: const EdgeInsets.all(36.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      SizedBox(height: 45.0),
-                      emailField,
-                      SizedBox(height: 25.0),
-                      passwordField,
-                      SizedBox(
-                        height: 35.0,
-                      ),
-                      loginButon,
-                      SizedBox(
-                        height: 15.0,
-                      ),
-                    ],
-                  ),
-                ),
+      body: Container(
+        color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(36.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Image(
+                image: AssetImage('assets/images/a_dot_burr.jpeg'),
+                height: 100,
               ),
+              SizedBox(height: 45.0),
+              emailField,
+              SizedBox(height: 25.0),
+              passwordField,
+              SizedBox(
+                height: 35.0,
+              ),
+              loginButon,
+              SizedBox(
+                height: 15.0,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

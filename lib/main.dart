@@ -8,6 +8,21 @@ import 'package:provider/provider.dart';
 
 void main() => {runApp(MyApp())};
 
+var lib = [];
+var obj = {};
+var updateList = [];
+var scanCount = 0;
+
+class DeepCopy {
+  static clone(obj) {
+    var tempObj = {};
+    for (var key in obj.keys) {
+      tempObj[key] = obj[key];
+    }
+    return tempObj;
+  }
+}
+
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

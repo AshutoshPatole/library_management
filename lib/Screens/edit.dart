@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:library_managment_system/service/books.dart';
+import 'package:library_managment_system/service/login_service.dart';
 import 'package:provider/provider.dart';
 
 class Edit extends StatefulWidget {
@@ -64,6 +65,7 @@ class _EditState extends State<Edit> {
   TextEditingController mS = TextEditingController();
   TextEditingController mT = TextEditingController();
 
+  String id;
   @override
   void initState() {
     super.initState();
@@ -76,6 +78,7 @@ class _EditState extends State<Edit> {
     call.text = callNo;
     mS.text = materialStatus;
     mT.text = materialType;
+    id = Provider.of<LoginService>(context, listen: false).user['ID'];
   }
 
   @override
@@ -102,7 +105,7 @@ class _EditState extends State<Edit> {
                   ),
                   Row(
                     children: [
-                      Text("Account number"),
+                      Text("Title"),
                       Expanded(
                         child: TextField(
                           controller: tit,
@@ -112,7 +115,7 @@ class _EditState extends State<Edit> {
                   ),
                   Row(
                     children: [
-                      Text("Account number"),
+                      Text("Author"),
                       Expanded(
                         child: TextField(
                           controller: auth,
@@ -122,7 +125,7 @@ class _EditState extends State<Edit> {
                   ),
                   Row(
                     children: [
-                      Text("Account number"),
+                      Text("Edition"),
                       Expanded(
                         child: TextField(
                           controller: edi,
@@ -132,7 +135,7 @@ class _EditState extends State<Edit> {
                   ),
                   Row(
                     children: [
-                      Text("Account number"),
+                      Text("Publisher"),
                       Expanded(
                         child: TextField(
                           controller: pub,
@@ -142,7 +145,7 @@ class _EditState extends State<Edit> {
                   ),
                   Row(
                     children: [
-                      Text("Account number"),
+                      Text("PubYear"),
                       Expanded(
                         child: TextField(
                           controller: year,
@@ -152,7 +155,7 @@ class _EditState extends State<Edit> {
                   ),
                   Row(
                     children: [
-                      Text("Account number"),
+                      Text("materialtype"),
                       Expanded(
                         child: TextField(
                           controller: mT,
@@ -162,7 +165,7 @@ class _EditState extends State<Edit> {
                   ),
                   Row(
                     children: [
-                      Text("Account number"),
+                      Text("materialstatus"),
                       Expanded(
                         child: TextField(
                           controller: mS,
@@ -180,20 +183,10 @@ class _EditState extends State<Edit> {
                       )
                     ],
                   ),
-                  ElevatedButton(
-                      onPressed: () {
-                        Provider.of<Books>(context, listen: false).bookupdate(
-                            acc.text,
-                            tit.text,
-                            auth.text,
-                            edi.text,
-                            year.text,
-                            call.text,
-                            pub.text,
-                            mS.text,
-                            mT.text);
-                      },
-                      child: Text("Update"))
+                  ElevatedButton(onPressed: () {}, child: Text("Update")),
+                  Consumer<LoginService>(builder: (context, value, child) {
+                    return Text(value.user['ID'].toString());
+                  }),
                 ],
               ),
             ),

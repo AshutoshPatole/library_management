@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:library_managment_system/Screens/admin_report.dart';
 import 'package:library_managment_system/Screens/list_books.dart';
+import 'package:library_managment_system/Screens/staff_list.dart';
 import 'package:library_managment_system/service/bar_result.dart';
 import 'package:library_managment_system/service/books.dart';
+import 'package:library_managment_system/service/login_service.dart';
 import 'package:provider/provider.dart';
 
+import '../main.dart';
 import 'edit.dart';
 
 class BarCodeHome extends StatefulWidget {
@@ -22,6 +26,51 @@ class _BarCodeHomeState extends State<BarCodeHome> {
   TextEditingController matS = TextEditingController();
   TextEditingController matT = TextEditingController();
 
+  bool admin = false;
+  String staffid;
+  String name;
+  String department;
+  Future combineObject() async {
+    for (int i = 0; i < lib.length; i++) {
+      obj.addAll(lib[i]);
+    }
+    obj.length != 0
+        ? updateList.add(DeepCopy.clone(obj))
+        : print("obj is epmpty");
+    scanCount++;
+    Future.delayed(Duration(seconds: 5), () {
+      lib.clear();
+      obj.clear();
+      // print("object list  $obj");
+      // print("lib  $lib");
+      // print("update list $updateList");
+      // print("Length    ${updateList.length}");
+      // print("scan count  $scanCount");
+    });
+  }
+
+  void clearAll() {
+    lib.clear();
+    obj.clear();
+    updateList.clear();
+    scanCount = 0;
+    print("lib  $lib");
+    print("obj  ${obj.length}");
+    print("update list $updateList");
+    print("Length    ${updateList.length}");
+    print("scan count  $scanCount");
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    admin = Provider.of<LoginService>(context, listen: false).user['admin'];
+    staffid = Provider.of<LoginService>(context, listen: false).user['ID'];
+    name = Provider.of<LoginService>(context, listen: false).user['name'];
+    department =
+        Provider.of<LoginService>(context, listen: false).user['department'];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,112 +87,163 @@ class _BarCodeHomeState extends State<BarCodeHome> {
               );
             },
           ),
+          Consumer<LoginService>(builder: (context, value, child) {
+            return value.user['admin']
+                ? IconButton(
+                    icon: Icon(Icons.report),
+                    onPressed: () => {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ReportList()))
+                        })
+                : Container();
+          }),
+          Consumer<LoginService>(builder: (context, value, child) {
+            return value.user['admin']
+                ? IconButton(
+                    icon: Icon(Icons.portrait),
+                    onPressed: () => {
+                          Navigator.of(context).push(
+                              MaterialPageRoute(builder: (context) => Staff()))
+                        })
+                : Container();
+          }),
         ],
       ),
       body: Container(
         alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: ListView(
+          physics: ClampingScrollPhysics(),
+          shrinkWrap: true,
           children: <Widget>[
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                IconButton(
-                  icon: Icon(Icons.qr_code),
-                  onPressed: () {
-                    Provider.of<BarCodeResultService>(context, listen: false)
-                        .scanBarcodeNormal();
-                  },
-                ),
+                Consumer<LoginService>(builder: (context, value, child) {
+                  return value.user['admin']
+                      ? Text(
+                          "Welcome Admin",
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        )
+                      : IconButton(
+                          icon: Icon(Icons.qr_code),
+                          onPressed: () {
+                            Provider.of<BarCodeResultService>(context,
+                                    listen: false)
+                                .scanBarcodeNormal();
+                          },
+                        );
+                })
               ],
             ),
             Consumer<BarCodeResultService>(builder: (context, value, child) {
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: value.book.length == 0
-                    ? Text(value.result)
-                    : Column(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.edit),
-                            onPressed: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => Edit(
-                                        account:
-                                            value.book[0]['accNo'].toString(),
-                                        title: value.book[0]['title'],
-                                        author: value.book[0]['author'],
-                                        callNo:
-                                            value.book[0]['callNo'].toString(),
-                                        edition:
-                                            value.book[0]['edition'].toString(),
-                                        pubYear:
-                                            value.book[0]['pubYear'].toString(),
-                                        publisher: value.book[0]['publisher'],
-                                        materialStatus: value.book[0]
-                                            ['materialStatus'],
-                                        materialType: value.book[0]
-                                            ['materialType'],
-                                      )));
-                            },
+                    ? Text(admin ? "" : value.result)
+                    : admin
+                        ? Container()
+                        : Column(
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => Edit(
+                                            account: value.book[0]['accNo']
+                                                .toString(),
+                                            title: value.book[0]['title'],
+                                            author: value.book[0]['author'],
+                                            callNo: value.book[0]['callNo']
+                                                .toString(),
+                                            edition: value.book[0]['edition']
+                                                .toString(),
+                                            pubYear: value.book[0]['pubYear']
+                                                .toString(),
+                                            publisher: value.book[0]
+                                                ['publisher'],
+                                            materialStatus: value.book[0]
+                                                ['materialStatus'],
+                                            materialType: value.book[0]
+                                                ['materialType'],
+                                          )));
+                                },
+                              ),
+                              CustomRow("Account number",
+                                  value.book[0]['accNo'], true),
+                              CustomRow("Title", value.book[0]['title'], true),
+                              CustomRow(
+                                  "Author", value.book[0]['author'], true),
+                              CustomRow("Edition",
+                                  value.book[0]['edition'].toString(), true),
+                              CustomRow("Publish year",
+                                  value.book[0]['pubYear'].toString(), true),
+                              CustomRow("Publisher", value.book[0]['publisher'],
+                                  true),
+                              CustomRow(
+                                  "Call number", value.book[0]['callNo'], true),
+                              CustomRow("Material Type",
+                                  value.book[0]['materialType'], true),
+                              CustomRow("MaterialStatus",
+                                  value.book[0]['materialStatus'], true),
+
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      // combineObject();
+                                      await combineObject();
+                                      Provider.of<BarCodeResultService>(context,
+                                              listen: false)
+                                          .scanBarcodeNormal();
+                                    },
+                                    child: Text('Save and next'),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      await combineObject();
+                                      Provider.of<Books>(context, listen: false)
+                                          .bookupdate(
+                                              staffid,
+                                              name,
+                                              department,
+                                              scanCount,
+                                              updateList.length,
+                                              updateList);
+                                      Future.delayed(Duration(seconds: 5), () {
+                                        clearAll();
+                                      });
+                                    },
+                                    child: Text('Update'),
+                                  )
+                                ],
+                              ),
+                              SizedBox(
+                                height: 25,
+                              ),
+                              // Row(
+                              //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              //   children: [
+                              //     ElevatedButton(
+                              //         onPressed: () {
+                              //           Provider.of<Books>(context, listen: false)
+                              //               .bookupdate(value.book[0]['_id'],
+                              //                   "Not Available");
+                              //         },
+                              //         child: Text("Take")),
+                              //     ElevatedButton(
+                              //         onPressed: () {
+                              //           Provider.of<Books>(context, listen: false)
+                              //               .bookupdate(
+                              //                   value.book[0]['_id'], "Available");
+                              //         },
+                              //         child: Text("Return"))
+                              //   ],
+                              // )
+                            ],
                           ),
-                          CustomRow(
-                            "Account number",
-                            value.book[0]['accNo'],
-                          ),
-                          CustomRow(
-                            "Title",
-                            value.book[0]['title'],
-                          ),
-                          CustomRow(
-                            "Author",
-                            value.book[0]['author'],
-                          ),
-                          CustomRow(
-                            "Edition",
-                            value.book[0]['edition'].toString(),
-                          ),
-                          CustomRow(
-                            "Publish year",
-                            value.book[0]['pubYear'].toString(),
-                          ),
-                          CustomRow(
-                            "Publisher",
-                            value.book[0]['publisher'],
-                          ),
-                          CustomRow(
-                            "Call number",
-                            value.book[0]['callNo'],
-                          ),
-                          CustomRow(
-                            "Material Type",
-                            value.book[0]['materialType'],
-                          ),
-                          CustomRow(
-                            "MaterialStatus",
-                            value.book[0]['materialStatus'],
-                          ),
-                          // Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          //   children: [
-                          //     ElevatedButton(
-                          //         onPressed: () {
-                          //           Provider.of<Books>(context, listen: false)
-                          //               .bookupdate(value.book[0]['_id'],
-                          //                   "Not Available");
-                          //         },
-                          //         child: Text("Take")),
-                          //     ElevatedButton(
-                          //         onPressed: () {
-                          //           Provider.of<Books>(context, listen: false)
-                          //               .bookupdate(
-                          //                   value.book[0]['_id'], "Available");
-                          //         },
-                          //         child: Text("Return"))
-                          //   ],
-                          // )
-                        ],
-                      ),
               );
             })
           ],
