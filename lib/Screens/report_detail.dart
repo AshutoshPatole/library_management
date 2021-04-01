@@ -78,7 +78,7 @@ class _ReportDetailState extends State<ReportDetail> {
                 shrinkWrap: true,
                 itemBuilder: (context, int index) {
                   return Text(
-                      "${index + 1}) ${value.report['taggedBooks'][index]['Account number']}");
+                      "${index + 1}) ${value.report['taggedBooks'][index]['AccessionNo']}");
                 },
                 itemCount: value.report['taggedBooks']?.length ?? 0,
               ),

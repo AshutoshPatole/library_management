@@ -114,6 +114,9 @@ class _CustomRowState extends State<CustomRow> {
   bool isChecked = false;
   @override
   Widget build(BuildContext context) {
+    if (widget.name == "AccessionNo") {
+      lib.add({widget.name: widget.data});
+    }
     return Column(
       children: [
         Row(
@@ -130,6 +133,7 @@ class _CustomRowState extends State<CustomRow> {
                       onChanged: (bool value) {
                         setState(() {
                           isChecked = !isChecked;
+
                           if (isChecked) {
                             lib.add({widget.name: widget.data});
                             print(lib);
