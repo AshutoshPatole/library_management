@@ -51,7 +51,6 @@ class Books extends ChangeNotifier {
           await Dio().get('https://library-management-2.herokuapp.com/report');
       if (response.statusCode == 200) {
         _ubooks = response.data;
-        print(_ubooks);
         notifyListeners();
       }
     } on SocketException {
@@ -73,7 +72,7 @@ class Books extends ChangeNotifier {
     }
   }
 
-  Future bookupdate(String editedby, staffname, staffdept, bookscanned,
+  Future<bool> bookupdate(String editedby, staffname, staffdept, bookscanned,
       booktagged, List taggedbooks) async {
     try {
       final Response response = await Dio().post(
@@ -86,13 +85,17 @@ class Books extends ChangeNotifier {
             "bookTagged": booktagged,
             "taggedBooks": taggedbooks
           });
+      print("${response.data}   and ${response.statusCode}");
       if (response.statusCode == 200) {
         print(response.data);
+        return true;
       } else {
         print(response.statusCode);
+        return false;
       }
     } on SocketException {
       print("no conection");
+      return false;
     }
   }
 }

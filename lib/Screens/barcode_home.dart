@@ -8,7 +8,6 @@ import 'package:library_managment_system/service/login_service.dart';
 import 'package:provider/provider.dart';
 
 import '../main.dart';
-import 'edit.dart';
 
 class BarCodeHome extends StatefulWidget {
   @override
@@ -26,6 +25,7 @@ class _BarCodeHomeState extends State<BarCodeHome> {
   TextEditingController matS = TextEditingController();
   TextEditingController matT = TextEditingController();
 
+  int defaultTarget = 1000;
   bool admin = false;
   String staffid;
   String name;
@@ -37,15 +37,15 @@ class _BarCodeHomeState extends State<BarCodeHome> {
     obj.length != 0
         ? updateList.add(DeepCopy.clone(obj))
         : print("obj is epmpty");
-    scanCount++;
+    setState(() {
+      scanCount++;
+      defaultTarget = 1000 - scanCount;
+    });
     Future.delayed(Duration(seconds: 5), () {
       lib.clear();
       obj.clear();
-      // print("object list  $obj");
-      // print("lib  $lib");
-      // print("update list $updateList");
-      // print("Length    ${updateList.length}");
-      // print("scan count  $scanCount");
+
+      print("update list $updateList");
     });
   }
 
@@ -78,25 +78,11 @@ class _BarCodeHomeState extends State<BarCodeHome> {
         title: const Text('Barcode scan'),
         actions: [
           IconButton(
-            icon: Icon(Icons.book_online),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => ListBooks(),
-                ),
-              );
-            },
-          ),
-          Consumer<LoginService>(builder: (context, value, child) {
-            return value.user['admin']
-                ? IconButton(
-                    icon: Icon(Icons.report),
-                    onPressed: () => {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => ReportList()))
-                        })
-                : Container();
-          }),
+              icon: Icon(Icons.report),
+              onPressed: () => {
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => ReportList()))
+                  }),
           Consumer<LoginService>(builder: (context, value, child) {
             return value.user['admin']
                 ? IconButton(
@@ -109,143 +95,136 @@ class _BarCodeHomeState extends State<BarCodeHome> {
           }),
         ],
       ),
-      body: Container(
-        alignment: Alignment.center,
-        child: ListView(
-          physics: ClampingScrollPhysics(),
-          shrinkWrap: true,
-          children: <Widget>[
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Consumer<LoginService>(builder: (context, value, child) {
                   return value.user['admin']
-                      ? Text(
-                          "Welcome Admin",
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        )
-                      : IconButton(
-                          icon: Icon(Icons.qr_code),
-                          onPressed: () {
-                            Provider.of<BarCodeResultService>(context,
-                                    listen: false)
-                                .scanBarcodeNormal();
-                          },
-                        );
-                })
+                      ? Container()
+                      : Text('Default Target $defaultTarget');
+                }),
+                Consumer<LoginService>(builder: (context, value, child) {
+                  return value.user['admin']
+                      ? Container()
+                      : Text('No of Scans $scanCount');
+                }),
               ],
             ),
-            Consumer<BarCodeResultService>(builder: (context, value, child) {
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: value.book.length == 0
-                    ? Text(admin ? "" : value.result)
-                    : admin
-                        ? Container()
-                        : Column(
-                            children: [
-                              IconButton(
-                                icon: Icon(Icons.edit),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.25,
+            ),
+            Container(
+              child: ListView(
+                physics: BouncingScrollPhysics(),
+                shrinkWrap: true,
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Consumer<LoginService>(builder: (context, value, child) {
+                        return value.user['admin']
+                            ? Text(
+                                "Welcome Admin",
+                                style: TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
+                              )
+                            : IconButton(
+                                icon: Icon(Icons.qr_code),
                                 onPressed: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => Edit(
-                                            account: value.book[0]['accNo']
-                                                .toString(),
-                                            title: value.book[0]['title'],
-                                            author: value.book[0]['author'],
-                                            callNo: value.book[0]['callNo']
-                                                .toString(),
-                                            edition: value.book[0]['edition']
-                                                .toString(),
-                                            pubYear: value.book[0]['pubYear']
-                                                .toString(),
-                                            publisher: value.book[0]
-                                                ['publisher'],
-                                            materialStatus: value.book[0]
-                                                ['materialStatus'],
-                                            materialType: value.book[0]
-                                                ['materialType'],
-                                          )));
+                                  Provider.of<BarCodeResultService>(context,
+                                          listen: false)
+                                      .scanBarcodeNormal();
                                 },
-                              ),
-                              CustomRow("Account number",
-                                  value.book[0]['accNo'], true),
-                              CustomRow("Title", value.book[0]['title'], true),
-                              CustomRow(
-                                  "Author", value.book[0]['author'], true),
-                              CustomRow("Edition",
-                                  value.book[0]['edition'].toString(), true),
-                              CustomRow("Publish year",
-                                  value.book[0]['pubYear'].toString(), true),
-                              CustomRow("Publisher", value.book[0]['publisher'],
-                                  true),
-                              CustomRow(
-                                  "Call number", value.book[0]['callNo'], true),
-                              CustomRow("Material Type",
-                                  value.book[0]['materialType'], true),
-                              CustomRow("MaterialStatus",
-                                  value.book[0]['materialStatus'], true),
-
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      // combineObject();
-                                      await combineObject();
-                                      Provider.of<BarCodeResultService>(context,
-                                              listen: false)
-                                          .scanBarcodeNormal();
-                                    },
-                                    child: Text('Save and next'),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      await combineObject();
-                                      Provider.of<Books>(context, listen: false)
-                                          .bookupdate(
-                                              staffid,
-                                              name,
-                                              department,
-                                              scanCount,
-                                              updateList.length,
-                                              updateList);
-                                      Future.delayed(Duration(seconds: 5), () {
-                                        clearAll();
-                                      });
-                                    },
-                                    child: Text('Update'),
-                                  )
-                                ],
-                              ),
-                              SizedBox(
-                                height: 25,
-                              ),
-                              // Row(
-                              //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              //   children: [
-                              //     ElevatedButton(
-                              //         onPressed: () {
-                              //           Provider.of<Books>(context, listen: false)
-                              //               .bookupdate(value.book[0]['_id'],
-                              //                   "Not Available");
-                              //         },
-                              //         child: Text("Take")),
-                              //     ElevatedButton(
-                              //         onPressed: () {
-                              //           Provider.of<Books>(context, listen: false)
-                              //               .bookupdate(
-                              //                   value.book[0]['_id'], "Available");
-                              //         },
-                              //         child: Text("Return"))
-                              //   ],
-                              // )
-                            ],
-                          ),
-              );
-            })
+                              );
+                      })
+                    ],
+                  ),
+                  Consumer<BarCodeResultService>(
+                      builder: (context, value, child) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      child: value.book.length == 0
+                          ? Text(admin ? "" : value.result)
+                          : admin
+                              ? Container()
+                              : Column(
+                                  children: [
+                                    CustomRow("AccessionNo",
+                                        value.book[0]['accNo'], true),
+                                    CustomRow(
+                                        "Title", value.book[0]['title'], true),
+                                    CustomRow("Author", value.book[0]['author'],
+                                        true),
+                                    CustomRow(
+                                        "Edition",
+                                        value.book[0]['edition'].toString(),
+                                        true),
+                                    CustomRow(
+                                        "Publish year",
+                                        value.book[0]['pubYear'].toString(),
+                                        true),
+                                    CustomRow("Publisher",
+                                        value.book[0]['publisher'], true),
+                                    CustomRow("Call number",
+                                        value.book[0]['callNo'], true),
+                                    CustomRow("Material Type",
+                                        value.book[0]['materialType'], true),
+                                    CustomRow("MaterialStatus",
+                                        value.book[0]['materialStatus'], true),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: () async {
+                                            await combineObject();
+                                            Provider.of<BarCodeResultService>(
+                                                    context,
+                                                    listen: false)
+                                                .scanBarcodeNormal();
+                                          },
+                                          child: Text('Save and next'),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () async {
+                                            print(
+                                                "======================== $updateList");
+                                            await combineObject();
+                                            bool isLoaded =
+                                                await Provider.of<Books>(
+                                                        context,
+                                                        listen: false)
+                                                    .bookupdate(
+                                                        staffid,
+                                                        name,
+                                                        department,
+                                                        scanCount,
+                                                        updateList.length,
+                                                        updateList);
+                                            if (isLoaded) {
+                                              Future.delayed(
+                                                  Duration(seconds: 2), () {
+                                                clearAll();
+                                              });
+                                            }
+                                          },
+                                          child: Text('Update'),
+                                        )
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 25,
+                                    ),
+                                  ],
+                                ),
+                    );
+                  })
+                ],
+              ),
+            ),
           ],
         ),
       ),
