@@ -44,11 +44,8 @@ class _BarCodeHomeState extends State<BarCodeHome> {
     Future.delayed(Duration(seconds: 5), () {
       lib.clear();
       obj.clear();
-      // print("object list  $obj");
-      // print("lib  $lib");
+
       print("update list $updateList");
-      // print("Length    ${updateList.length}");
-      // print("scan count  $scanCount");
     });
   }
 
@@ -80,16 +77,12 @@ class _BarCodeHomeState extends State<BarCodeHome> {
       appBar: AppBar(
         title: const Text('Barcode scan'),
         actions: [
-          Consumer<LoginService>(builder: (context, value, child) {
-            return value.user['admin']
-                ? IconButton(
-                    icon: Icon(Icons.report),
-                    onPressed: () => {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => ReportList()))
-                        })
-                : Container();
-          }),
+          IconButton(
+              icon: Icon(Icons.report),
+              onPressed: () => {
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => ReportList()))
+                  }),
           Consumer<LoginService>(builder: (context, value, child) {
             return value.user['admin']
                 ? IconButton(

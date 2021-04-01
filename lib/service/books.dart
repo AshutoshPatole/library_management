@@ -51,7 +51,6 @@ class Books extends ChangeNotifier {
           await Dio().get('https://library-management-2.herokuapp.com/report');
       if (response.statusCode == 200) {
         _ubooks = response.data;
-        print(_ubooks);
         notifyListeners();
       }
     } on SocketException {
